@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 import * as aq from "arquero";
 import * as XLSX from "xlsx";
-
+import sort from "./sort";
 function handleExcelUpload(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -53,17 +53,17 @@ function processData(raw) {
     
 
     if (d.procent !== undefined) {
-      processed.precent = +d.procent;
+      processed.percent = +d.procent;
     } else if (d.value !== undefined) {
-      processed.precent = +d.value;
+      processed.percent = +d.value;
     } else if (d.percentage !== undefined) {
-      processed.precent = +d.percentage;
+      processed.percent = +d.percentage;
     }
     
    
 
     return processed;
-  }).filter(d => d.name && !isNaN(d.precent));
+  }).filter(d => d.name && !isNaN(d.percent));
 
   return {
     colors,
@@ -103,20 +103,26 @@ function drawChart(processedData, container) {
   const uniqueNames = [...new Set(dataset.map(d => d.name))];
   
  
-  const values = dataset.map(d => d.precent);
+  const values = dataset.map(d => d.percent);
   const minValue = Math.min(...values);
   const maxValue = Math.max(...values);
   const yMin = Math.min(-100, Math.floor(minValue / 10) * 10 - 10);
   const yMax = Math.max(100, Math.ceil(maxValue / 10) * 10 + 10);
 
+ const sortedData = sort(dataset);
+  
+
+  const sortedNames = sortedData.map(d => d.name);
+
   const y = d3.scaleLinear()
-    .domain([yMin, yMax])
+    .domain([-100, 100])
     .range([height - marginBottom, marginTop]);
 
   const x = d3.scaleBand()
-    .domain(uniqueNames)
+    .domain(sortedNames) 
     .range([marginLeft, width - marginRight])
-    .padding(0.3);
+    .padding(0.2);
+
 
   const zeroY = y(0);
 
@@ -134,10 +140,6 @@ function drawChart(processedData, container) {
 
  
 
-  const sortedData = dataset.sort((a, b) => 
-    uniqueNames.indexOf(a.name) - uniqueNames.indexOf(b.name)
-  );
-
 
   svg.selectAll(".bars")
     .data(sortedData)
@@ -146,12 +148,12 @@ function drawChart(processedData, container) {
     .attr("class", "bars")
     .attr("x", d => x(d.name))
     .attr("y", d => {
-      const value = d.precent;
+      const value = d.percent;
       return value >= 0 ? zeroY - Math.abs(y(value) - y(0)) : zeroY;
     })
     .attr("width", x.bandwidth())
     .attr("height", d => {
-      const value = d.precent;
+      const value = d.percent;
       return Math.abs(y(value) - y(0));
     })
     .attr("fill", d => {
@@ -171,7 +173,7 @@ function drawChart(processedData, container) {
     .attr("class", "bar-labels")
     .attr("x", d => x(d.name) + x.bandwidth() / 2)
     .attr("y", d => {
-      const value = d.precent;
+      const value = d.percent;
      
       if (value >= 0) {
         return zeroY - Math.abs(y(value) - y(0)) - 5; 
