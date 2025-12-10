@@ -2,6 +2,7 @@ import * as d3 from "d3";
 import * as aq from "arquero";
 import * as XLSX from "xlsx";
 import sort from "./sort";
+
 function handleExcelUpload(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -15,6 +16,7 @@ function handleExcelUpload(file) {
 
       resolve({
         stylesTable: toTable("styles"),
+        settingsTable: toTable("settings"),
         data: toTable("data"),
       });
     };
@@ -22,6 +24,16 @@ function handleExcelUpload(file) {
     reader.onerror = () => reject(new Error("Ошибка чтения файла"));
     reader.readAsArrayBuffer(file);
   });
+}
+
+function calculateLegendWidth(uniqueCategories) {
+  return (
+    aq
+      .from(uniqueCategories)
+      .derive({ label_length: aq.escape((d) => String(d.category).length) })
+      .rollup({ max_length: aq.op.max("label_length") })
+      .object().max_length * 6
+  );
 }
 
 function createScale(colors, property) {
@@ -32,9 +44,22 @@ function createScale(colors, property) {
 }
 
 function processData(raw) {
-  const { stylesData, data } = raw;
+  const { stylesData, data, settingsData } = raw;
+
+  const settings = settingsData.reduce((acc, d) => {
+    acc[d.measure] = d.value;
+    return acc;
+  }, {});
+
   const dataset = data.objects();
+
   const styles = stylesData.objects ? stylesData.objects() : stylesData;
+
+  const baseSettings = {
+    width: settings.width || 1600,
+    height: settings.height || 900,
+    label: settings.label || "",
+  };
 
   const colors = styles.map((d) => ({
     key: d.key,
@@ -48,31 +73,32 @@ function processData(raw) {
   return {
     colors,
     scales,
-    dataset: dataset,
-    baseSettings: {
-      width: 1200,
-      height: 1000,
-      marginTop: 230,
-      marginRight: 250,
-      marginBottom: 100,
-      marginLeft: 150,
-    },
+    baseSettings,
+    dataset,
+    baseSettings,
   };
 }
 
 function drawChart(processedData, container) {
-  const { scales, dataset, baseSettings, colors } = processedData;
-  const { width, height, marginTop, marginRight, marginBottom, marginLeft } =
-    baseSettings;
+  const { scales, dataset, baseSettings } = processedData;
+  const { width, height } = baseSettings;
 
   container.innerHTML = "";
-
+  const uniqueCategories = aq
+    .from(dataset)
+    .dedupe("category")
+    .filter((d) => d.category !== "")
+    .objects();
+  console.log(uniqueCategories);
+  const marginLeft = 120;
+  const marginBottom = 100;
+  const marginTop = 50;
+  const marginRight = calculateLegendWidth(uniqueCategories);
   const svg = d3
     .select(container)
     .append("svg")
-    .attr("width", width)
+    .attr("width", width + calculateLegendWidth(uniqueCategories))
     .attr("height", height);
-
   const sortedData = sort(dataset);
   const sortedNames = sortedData.map((d) => d.name);
 
@@ -87,6 +113,15 @@ function drawChart(processedData, container) {
     .range([marginLeft, width - marginRight])
     .padding(0.2);
 
+  svg
+    .append("text")
+    .attr("class", "x-label")
+    .attr("text-anchor", "middle")
+    .attr("x", width / 2)
+    .attr("y", height - marginBottom / 2)
+    .style("font-size", "18px")
+    .style("fill", "#333")
+    .text(baseSettings.label);
   const zeroY = y(0);
 
   svg
@@ -152,17 +187,11 @@ function drawChart(processedData, container) {
     .attr("class", "legend")
     .attr("transform", `translate(${width - marginRight + 20}, ${marginTop})`);
 
-  const uniqueCategories = [...new Set(dataset.map((d) => d.category))];
-
-  const legendData = uniqueCategories.filter(
-    (d) => scales.color(d) !== undefined
-  );
-
   const legendItemHeight = 28;
 
   legendGroup
     .selectAll(".legend-rect")
-    .data(legendData)
+    .data(uniqueCategories)
     .enter()
     .append("rect")
     .attr("class", "legend-rect")
@@ -178,7 +207,7 @@ function drawChart(processedData, container) {
 
   legendGroup
     .selectAll(".legend-label")
-    .data(legendData)
+    .data(uniqueCategories)
     .enter()
     .append("text")
     .attr("class", "legend-label")
@@ -188,7 +217,7 @@ function drawChart(processedData, container) {
     .style("font-size", "14px")
     .style("fill", "#333")
     .style("font-weight", "normal")
-    .text((d) => d);
+    .text((d) => d.category);
 
   return svg.node();
 }
@@ -198,6 +227,7 @@ export async function drawPlot(file, chartContainer) {
     const excelData = await handleExcelUpload(file);
     const raw = {
       data: excelData.data,
+      settingsData: excelData.settingsTable.objects(),
       stylesData: excelData.stylesTable,
     };
 
