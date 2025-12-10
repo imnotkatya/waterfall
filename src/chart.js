@@ -32,7 +32,7 @@ function calculateLegendWidth(uniqueCategories) {
       .from(uniqueCategories)
       .derive({ label_length: aq.escape((d) => String(d.category).length) })
       .rollup({ max_length: aq.op.max("label_length") })
-      .object().max_length * 6
+      .object().max_length * 10
   );
 }
 
@@ -200,7 +200,7 @@ function drawChart(processedData, container) {
       }
     })
     .attr("text-anchor", "middle")
-    .style("font-size", "12px")
+    .style("font-size", "15px")
     .style("font-weight", "bold")
     .style("fill", "#333")
     .text((d) => d.name);
@@ -215,7 +215,7 @@ function drawLegend(svg, scales, settingsContext, uniqueCategories) {
     .attr("class", "legend")
     .attr("transform", `translate(${width - marginRight + 20}, ${marginTop})`);
 
-  const legendItemHeight = 28;
+  const legendItemHeight = 35;
 
   legendGroup
     .selectAll(".legend-rect")
@@ -225,8 +225,8 @@ function drawLegend(svg, scales, settingsContext, uniqueCategories) {
     .attr("class", "legend-rect")
     .attr("x", 0)
     .attr("y", (d, i) => i * legendItemHeight)
-    .attr("width", 20)
-    .attr("height", 20)
+    .attr("width", 25)
+    .attr("height", 25)
     .attr("fill", (d) => scales.color(d))
     .attr("opacity", 0.8)
     .attr("stroke", "#333")
@@ -241,8 +241,8 @@ function drawLegend(svg, scales, settingsContext, uniqueCategories) {
     .attr("class", "legend-label")
     .attr("x", 30)
     .attr("y", (d, i) => i * legendItemHeight + 10)
-    .attr("dy", "0.35em")
-    .style("font-size", "14px")
+    .attr("dy", "10px")
+    .style("font-size", "18px")
     .style("fill", "#333")
     .style("font-weight", "normal")
     .text((d) => d.category);
