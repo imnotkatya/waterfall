@@ -99,7 +99,7 @@ const APP_TEMPLATE = `
           <p>Для работы с данной программой нужно...</p>
           <div class="images">
             <div id="excel-template">
-            <a href="info_template.xlsx" download>
+            <a href="waterfall.xlsx" download>
                <img src="./data.png" alt="Пример данных Excel">
                 <p><center>Пример данных Excel</center></p>
               </a>

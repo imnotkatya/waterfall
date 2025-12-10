@@ -53,12 +53,13 @@ function processData(raw) {
 
   const dataset = data.objects();
 
-  const styles = stylesData.objects ? stylesData.objects() : stylesData;
+  const styles = stylesData.objects();
 
   const baseSettings = {
     width: settings.width || 1600,
     height: settings.height || 900,
-    label: settings.label || "",
+    label_x: settings.label_x || "",
+    label_y: settings.label_y || "",
   };
 
   const colors = styles.map((d) => ({
@@ -83,24 +84,35 @@ function drawChart(processedData, container) {
   const { scales, dataset, baseSettings } = processedData;
   const { width, height } = baseSettings;
 
-  container.innerHTML = "";
   const uniqueCategories = aq
     .from(dataset)
     .dedupe("category")
     .filter((d) => d.category !== "")
     .objects();
-  console.log(uniqueCategories);
+
+  container.innerHTML = "";
+
   const marginLeft = 120;
   const marginBottom = 100;
   const marginTop = 50;
   const marginRight = calculateLegendWidth(uniqueCategories);
+
+  const settingsContext = {
+    width,
+    height,
+    marginTop,
+    marginRight,
+    marginBottom,
+    marginLeft,
+  };
+  const sortedData = sort(dataset);
+  const sortedNames = sortedData.map((d) => d.name);
+
   const svg = d3
     .select(container)
     .append("svg")
     .attr("width", width + calculateLegendWidth(uniqueCategories))
     .attr("height", height);
-  const sortedData = sort(dataset);
-  const sortedNames = sortedData.map((d) => d.name);
 
   const y = d3
     .scaleLinear()
@@ -121,7 +133,18 @@ function drawChart(processedData, container) {
     .attr("y", height - marginBottom / 2)
     .style("font-size", "18px")
     .style("fill", "#333")
-    .text(baseSettings.label);
+    .text(baseSettings.label_x);
+  svg
+    .append("text")
+    .attr("class", "y-label")
+    .attr("text-anchor", "middle")
+    .attr(
+      "transform",
+      `translate(${marginLeft - 60}, ${height / 2}) rotate(-90)`
+    )
+    .style("font-size", "18px")
+    .style("fill", "#333")
+    .text(baseSettings.label_y);
   const zeroY = y(0);
 
   svg
@@ -181,7 +204,12 @@ function drawChart(processedData, container) {
     .style("font-weight", "bold")
     .style("fill", "#333")
     .text((d) => d.name);
+  drawLegend(svg, scales, settingsContext, uniqueCategories);
+  return svg.node();
+}
 
+function drawLegend(svg, scales, settingsContext, uniqueCategories) {
+  const { marginTop, marginRight, width } = settingsContext;
   const legendGroup = svg
     .append("g")
     .attr("class", "legend")
@@ -218,8 +246,6 @@ function drawChart(processedData, container) {
     .style("fill", "#333")
     .style("font-weight", "normal")
     .text((d) => d.category);
-
-  return svg.node();
 }
 
 export async function drawPlot(file, chartContainer) {
@@ -230,14 +256,12 @@ export async function drawPlot(file, chartContainer) {
       settingsData: excelData.settingsTable.objects(),
       stylesData: excelData.stylesTable,
     };
-
     const processedData = processData(raw);
     drawChart(processedData, chartContainer);
   } catch (error) {
     console.error("Ошибка при построении графика:", error);
     chartContainer.innerHTML = `<div >
       Ошибка: ${error.message}<br/><br/>
-    
     </div>`;
   }
 }
