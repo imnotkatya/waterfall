@@ -1,7 +1,6 @@
 import * as d3 from "d3";
 import * as aq from "arquero";
 import * as XLSX from "xlsx";
-import sort from "./sort";
 
 function handleExcelUpload(file) {
   return new Promise((resolve, reject) => {
@@ -105,7 +104,7 @@ function drawChart(processedData, container) {
     marginBottom,
     marginLeft,
   };
-  const sortedData = sort(dataset);
+  const sortedData = aq.from(dataset).orderby(aq.desc("percent")).objects();
   const sortedNames = sortedData.map((d) => d.name);
 
   const svg = d3
@@ -151,8 +150,9 @@ function drawChart(processedData, container) {
     .append("g")
     .attr("transform", `translate(0,${zeroY})`)
     .call(d3.axisBottom(x).tickFormat(""))
-    .style("font-size", "15px");
-
+    .style("font-size", "15px")
+    .selectAll(".tick line")
+    .remove();
   svg
     .append("g")
     .attr("transform", `translate(${marginLeft},0)`)
