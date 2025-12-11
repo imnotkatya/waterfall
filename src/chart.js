@@ -16,7 +16,7 @@ function handleExcelUpload(file) {
       resolve({
         stylesTable: toTable("styles"),
         settingsTable: toTable("settings"),
-        data: toTable("data"),
+        chartData: toTable("data"),
       });
     };
 
@@ -43,14 +43,14 @@ function createScale(colors, property) {
 }
 
 function processData(raw) {
-  const { stylesData, data, settingsData } = raw;
+  const { stylesData, chartData, settingsData } = raw;
 
   const settings = settingsData.reduce((acc, d) => {
     acc[d.measure] = d.value;
     return acc;
   }, {});
 
-  const dataset = data.objects();
+  const dataset = chartData.objects();
 
   const styles = stylesData.objects();
 
@@ -252,7 +252,7 @@ export async function drawPlot(file, chartContainer) {
   try {
     const excelData = await handleExcelUpload(file);
     const raw = {
-      data: excelData.data,
+      chartData: excelData.chartData,
       settingsData: excelData.settingsTable.objects(),
       stylesData: excelData.stylesTable,
     };
