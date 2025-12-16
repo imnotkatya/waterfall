@@ -5,16 +5,19 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+        "test": "vitest",
     "build": "vite build",
-    "preview": "vite preview"
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "devDependencies": {
-    "vite": "npm:rolldown-vite@7.2.5"
+    "gh-pages": "^6.3.0",
+    "vite": "npm:rolldown-vite@7.2.5",
+    "vitest": "^4.0.15"
   },
   "overrides": {
-     "@eslint/js": "^9.39.1",
+    "@eslint/js": "^9.39.1",
     "eslint": "^9.39.1",
-    "gh-pages": "^6.3.0",
     "globals": "^16.5.0",
     "prettier": "3.6.2",
     "vite": "npm:rolldown-vite@7.2.5"
