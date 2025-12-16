@@ -25,7 +25,7 @@ function handleExcelUpload(file) {
   });
 }
 
-function calculateLegendWidth(uniqueCategories) {
+export default function calculateLegendWidth(uniqueCategories) {
   return (
     aq
       .from(uniqueCategories)
@@ -95,7 +95,9 @@ function drawChart(processedData, container) {
   const marginBottom = 100;
   const marginTop = 50;
   const marginRight = calculateLegendWidth(uniqueCategories);
-
+  console.log(uniqueCategories);
+  console.log(calculateLegendWidth(uniqueCategories));
+  console.log(marginRight);
   const settingsContext = {
     width,
     height,
