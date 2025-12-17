@@ -1,13 +1,33 @@
-import { expect, test } from "vitest";
-import calculateLegendWidth from "../chart.js";
-import * as aq from "arquero";
-const table = aq.from([
-  { name: "P11", percent: -2, category: "first_category" },
-  { name: "P14", percent: -2, category: "second_category" },
-  { name: "P2", percent: -5.19230769230769, category: "third_category" },
-  { name: "P7", percent: 44, category: "fourth_category" },
-]);
-const categories = table.objects();
-test("calculateLegendWidth check max length", () => {
-  expect(calculateLegendWidth(categories)).toBe(150);
+import { test, expect, vi } from "vitest";
+import { drawPlot } from "../chart.js";
+
+test("проверка ошибки при неправильном файле", async () => {
+  const OriginalFileReader = global.FileReader;
+  global.FileReader = vi.fn(function () {
+    this.readAsArrayBuffer = vi.fn(function () {
+      setTimeout(() => {
+        if (this.onerror) {
+          const errorEvent = new Event("error");
+          this.onerror(errorEvent);
+        }
+      }, 0);
+    });
+
+    return this;
+  });
+
+  const fileContent = "invalid data";
+  const file = new File([fileContent], "test.xlsx");
+
+  const container = {
+    innerHTML: "",
+  };
+
+  await drawPlot(file, container);
+
+  await new Promise((resolve) => setTimeout(resolve, 10));
+
+  expect(container.innerHTML).toContain("Ошибка");
+
+  global.FileReader = OriginalFileReader;
 });

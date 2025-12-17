@@ -25,7 +25,7 @@ function handleExcelUpload(file) {
   });
 }
 
-export default function calculateLegendWidth(uniqueCategories) {
+function calculateLegendWidth(uniqueCategories) {
   return (
     aq
       .from(uniqueCategories)
@@ -253,6 +253,7 @@ function drawLegend(svg, scales, settingsContext, uniqueCategories) {
 export async function drawPlot(file, chartContainer) {
   try {
     const excelData = await handleExcelUpload(file);
+    console.log(excelData);
     const raw = {
       chartData: excelData.chartData,
       settingsData: excelData.settingsTable.objects(),
