@@ -6,23 +6,15 @@ test('test', async ({ page }) => {
   const fileInput = page.locator('input[type="file"]');
   await fileInput.setInputFiles('dist/waterfall.xlsx');
   await expect(page.locator('rect').first()).toBeVisible();
-
   await expect(page.locator('rect').nth(4)).toBeVisible();
-
   await expect(page.locator('rect:nth-child(11)')).toBeVisible();
-
-
   await expect(page.locator('.legend-rect').first()).toBeVisible();
   await expect(page.locator('rect:nth-child(2)')).toBeVisible();
-
-
   await expect(page.getByRole('img')).toContainText('Change,%');
   await expect(page.getByRole('img')).toContainText('Patients (N= 92)');
   await expect(page.locator('g').filter({ hasText: '−100−80−60−40−' }).locator('path')).toBeVisible();
   await expect(page.getByRole('heading')).toContainText('Waterfall Plot');
   await expect(page.getByRole('img')).toContainText('P21');
-
-
 
 const barsAmount = page.locator('.bars');
 await expect(barsAmount).toHaveCount(25);
@@ -38,15 +30,26 @@ await expect(legendLabel).toHaveCount(4);
 const axisPlusTicks = page.locator(' .tick line');
 await expect(axisPlusTicks).toHaveCount(11);
 
-
 const count = await legendSquares.count();
-
-
 let  colors = new Set();
 for (let i = 0; i < count; i++) {
   const color = await legendSquares.nth(i).getAttribute('fill');
   if (color) colors.add(color);
 }
-
 expect(colors.size).toBe(4);
+
+
+
+const allBars= await barsAmount.count();
+
+const actualColors = [];
+for (let i = 0; i < allBars; i++) {
+  const color = await barsAmount.nth(i).getAttribute('fill');
+  actualColors.push(color);
+}
+
+const actualColorSet = new Set(actualColors);
+const expectedColorSet = new Set(['#AD64D5', '#B6D5B2', '#CAB2D5', '#FFED6F']);
+
+expect(actualColorSet).toEqual(expectedColorSet);
 })
