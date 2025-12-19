@@ -271,22 +271,28 @@ function drawLegend(svg, scales, settingsContext, uniqueCategories) {
     .style("font-weight", "normal")
     .text((d) => d.category);
 }
+export async function processFile(file) {
+  const fileName = file.name.toLowerCase();
+  let excelData;
+
+  if (fileName.endsWith(".json")) {
+    excelData = await handleJsonUpload(file);
+  } else if (fileName.endsWith(".xlsx") || fileName.endsWith(".xls")) {
+    excelData = await handleExcelUpload(file);
+  } else {
+    throw new Error(`Неподдерживаемый формат файла`);
+  }
+
+  return {
+    chartData: excelData.chartData,
+    settingsData: excelData.settingsTable.objects(),
+    stylesData: excelData.stylesTable,
+  };
+}
 
 export async function drawPlot(file, chartContainer) {
   try {
-    const fileName = file.name.toLowerCase();
-    let excelData;
-    if (fileName.endsWith(".json")) {
-      excelData = await handleJsonUpload(file);
-    } else if (fileName.endsWith(".xlsx") || fileName.endsWith(".xls")) {
-      excelData = await handleExcelUpload(file);
-    }
-
-    const raw = {
-      chartData: excelData.chartData,
-      settingsData: excelData.settingsTable.objects(),
-      stylesData: excelData.stylesTable,
-    };
+    const raw = await processFile(file);
     const processedData = processData(raw);
     drawChart(processedData, chartContainer);
   } catch (error) {
