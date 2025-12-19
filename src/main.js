@@ -1,4 +1,4 @@
-import { drawPlot } from "./chart.js";
+import { drawPlot, processFile, processData } from "./chart.js";
 import { setupFileUpload } from "./upload";
 
 const STYLES = `
@@ -137,7 +137,10 @@ export function main(container) {
   const chartContainer = container.querySelector("#chart-container");
 
   setupFileUpload(chartContainer, async (file) => {
-    await drawPlot(file, chartContainer.querySelector("#chartContent"));
+    await drawPlot(
+      processData(await processFile(file)),
+      chartContainer.querySelector("#chartContent")
+    );
   });
 }
 

@@ -1,7 +1,29 @@
 import * as d3 from "d3";
 import * as aq from "arquero";
 import * as XLSX from "xlsx";
+function handleJsonUpload(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
 
+    reader.onload = (e) => {
+      const jsonData = JSON.parse(e.target.result);
+      let stylesData, settingsData, chartData;
+      if (jsonData.styles && jsonData.settings && jsonData.data) {
+        stylesData = jsonData.styles;
+        settingsData = jsonData.settings;
+        chartData = jsonData.data;
+      }
+
+      resolve({
+        stylesTable: aq.from(stylesData),
+        settingsTable: aq.from(settingsData),
+        chartData: aq.from(chartData),
+      });
+    };
+    reader.onerror = () => reject(new Error("Ошибка чтения файла"));
+    reader.readAsText(file);
+  });
+}
 function handleExcelUpload(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -42,7 +64,7 @@ function createScale(colors, property) {
     .range(colors.map((c) => c[property]));
 }
 
-function processData(raw) {
+export function processData(raw) {
   const { stylesData, chartData, settingsData } = raw;
 
   const settings = settingsData.reduce((acc, d) => {
@@ -249,17 +271,27 @@ function drawLegend(svg, scales, settingsContext, uniqueCategories) {
     .style("font-weight", "normal")
     .text((d) => d.category);
 }
+export async function processFile(file) {
+  const fileName = file.name.toLowerCase();
+  let excelData;
 
-export async function drawPlot(file, chartContainer) {
+  if (fileName.endsWith(".json")) {
+    excelData = await handleJsonUpload(file);
+  } else if (fileName.endsWith(".xlsx") || fileName.endsWith(".xls")) {
+    excelData = await handleExcelUpload(file);
+  } else {
+    throw new Error(`Неподдерживаемый формат файла`);
+  }
+
+  return {
+    chartData: excelData.chartData,
+    settingsData: excelData.settingsTable.objects(),
+    stylesData: excelData.stylesTable,
+  };
+}
+
+export async function drawPlot(processedData, chartContainer) {
   try {
-    const excelData = await handleExcelUpload(file);
-    console.log(excelData);
-    const raw = {
-      chartData: excelData.chartData,
-      settingsData: excelData.settingsTable.objects(),
-      stylesData: excelData.stylesTable,
-    };
-    const processedData = processData(raw);
     drawChart(processedData, chartContainer);
   } catch (error) {
     console.error("Ошибка при построении графика:", error);
