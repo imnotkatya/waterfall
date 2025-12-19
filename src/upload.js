@@ -13,7 +13,7 @@ export function setupFileUpload(container, onFileUpload) {
       fileInput.click();
     }
   });
-
+  fileInput.setAttribute("accept", ".xlsx,.xls,.json");
   fileInput.addEventListener("change", async (e) => {
     const file = e.target.files[0];
     if (!file) return;

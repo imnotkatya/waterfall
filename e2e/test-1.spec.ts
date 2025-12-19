@@ -9,7 +9,7 @@ test('waterfall svg load e2e test', async ({ page }) => {
   
 
   const fileInput = page.locator('input[type="file"]');
-  await fileInput.setInputFiles('dist/waterfall.xlsx');
+  await fileInput.setInputFiles('dist/data.json');
   
  
 

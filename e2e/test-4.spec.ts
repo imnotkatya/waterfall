@@ -4,7 +4,7 @@ test('test', async ({ page }) => {
   await page.goto('http://localhost:5173/');
   await page.getByText('Нажмите в любом месте или перетащите Excel файл').click();
   const fileInput = page.locator('input[type="file"]');
-  await fileInput.setInputFiles('dist/waterfall.xlsx');
+  await fileInput.setInputFiles('dist/data.json');
   await expect(page.locator('rect').first()).toBeVisible();
   await expect(page.locator('rect').nth(4)).toBeVisible();
   await expect(page.locator('rect:nth-child(11)')).toBeVisible();

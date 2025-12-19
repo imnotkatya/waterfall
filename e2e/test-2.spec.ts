@@ -10,7 +10,7 @@ test('test things to be visible', async ({ page }) => {
   await page.getByText('Нажмите в любом месте или перетащите Excel файл Поддерживаются файлы .xlsx, .xls').click();
 
   const fileInput = page.locator('input[type="file"]');
-  await fileInput.setInputFiles('dist/waterfall.xlsx');
+  await fileInput.setInputFiles('dist/data.json');
   await expect(page.getByRole('heading', { name: 'Waterfall Plot' })).toBeVisible();
   await expect(page.getByText('first_category')).toBeVisible();
   await expect(page.getByText('second_category')).toBeVisible();

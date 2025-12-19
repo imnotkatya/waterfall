@@ -2,6 +2,30 @@ import * as d3 from "d3";
 import * as aq from "arquero";
 import * as XLSX from "xlsx";
 
+function handleJsonUpload(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      const jsonData = JSON.parse(e.target.result);
+      let stylesData, settingsData, chartData;
+      if (jsonData.styles && jsonData.settings && jsonData.data) {
+        stylesData = jsonData.styles;
+        settingsData = jsonData.settings;
+        chartData = jsonData.data;
+      }
+
+      resolve({
+        stylesTable: aq.from(stylesData),
+        settingsTable: aq.from(settingsData),
+        chartData: aq.from(chartData),
+      });
+    };
+    reader.onerror = () => reject(new Error("Ошибка чтения файла"));
+    reader.readAsText(file);
+  });
+}
+
 function handleExcelUpload(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -252,14 +276,15 @@ function drawLegend(svg, scales, settingsContext, uniqueCategories) {
 
 export async function drawPlot(file, chartContainer) {
   try {
-    const excelData = await handleExcelUpload(file);
-    console.log(excelData);
+    const excelData = await handleJsonUpload(file);
+
     const raw = {
       chartData: excelData.chartData,
       settingsData: excelData.settingsTable.objects(),
       stylesData: excelData.stylesTable,
     };
     const processedData = processData(raw);
+
     drawChart(processedData, chartContainer);
   } catch (error) {
     console.error("Ошибка при построении графика:", error);
