@@ -1,0 +1,41 @@
+{
+  "styles": [
+    {"key": "first_category", "color": "#FFED6F"},
+    {"key": "second_category", "color": "#CAB2D5"},
+    {"key": "third_category", "color": "#B6D5B2"},
+    {"key": "fourth_category", "color": "#AD64D5"}
+  ],
+  "settings": [
+    {"measure": "width", "value": "1200"},
+    {"measure": "height", "value": "900"},
+    {"measure": "label_x", "value": "Patients (N= 92)"},
+    {"measure": "label_y", "value": "Change,%"}
+  ],
+  "data": [
+    {"name": "P11", "percent": -2, "category": "first_category"},
+    {"name": "P12", "percent": -2, "category": "first_category"},
+    {"name": "P13", "percent": -2, "category": "first_category"},
+    {"name": "P14", "percent": -2, "category": "second_category"},
+    {"name": "P15", "percent": 16, "category": "second_category"},
+    {"name": "P16", "percent": -20, "category": "first_category"},
+    {"name": "P17", "percent": 8, "category": "first_category"},
+    {"name": "P18", "percent": -5, "category": "first_category"},
+    {"name": "P19", "percent": -2, "category": "first_category"},
+    {"name": "P20", "percent": -4, "category": "first_category"},
+    {"name": "P21", "percent": 67, "category": "first_category"},
+    {"name": "P22", "percent": 6, "category": "second_category"},
+    {"name": "P23", "percent": -16, "category": "second_category"},
+    {"name": "P24", "percent": -23, "category": "first_category"},
+    {"name": "P25", "percent": 22, "category": "first_category"},
+    {"name": "P1", "percent": -24, "category": "first_category"},
+    {"name": "P2", "percent": -5.19230769230769, "category": "third_category"},
+    {"name": "P3", "percent": 8, "category": "third_category"},
+    {"name": "P4", "percent": -5.07142857142857, "category": "third_category"},
+    {"name": "P5", "percent": 23, "category": "third_category"},
+    {"name": "P6", "percent": -4.95054945054946, "category": "third_category"},
+    {"name": "P7", "percent": 44, "category": "fourth_category"},
+    {"name": "P8", "percent": -4.82967032967034, "category": "fourth_category"},
+    {"name": "P9", "percent": -4.76923076923078, "category": "fourth_category"},
+    {"name": "P10", "percent": -4.70879120879122, "category": "fourth_category"}
+  ]
+}
