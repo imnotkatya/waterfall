@@ -64,7 +64,7 @@ function createScale(colors, property) {
     .range(colors.map((c) => c[property]));
 }
 
-function processData(raw) {
+export function processData(raw) {
   const { stylesData, chartData, settingsData } = raw;
 
   const settings = settingsData.reduce((acc, d) => {
@@ -290,10 +290,8 @@ export async function processFile(file) {
   };
 }
 
-export async function drawPlot(file, chartContainer) {
+export async function drawPlot(processedData, chartContainer) {
   try {
-    const raw = await processFile(file);
-    const processedData = processData(raw);
     drawChart(processedData, chartContainer);
   } catch (error) {
     console.error("Ошибка при построении графика:", error);
