@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("test", async ({ page }) => {
+test("upload json file test", async ({ page }) => {
   await page.goto("http://localhost:5173/");
   await page
     .getByText("Нажмите в любом месте или перетащите Excel файл")

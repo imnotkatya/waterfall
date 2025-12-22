@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('test things to be visible', async ({ page }) => {
+test('test elements to be visible with uploaded excel file', async ({ page }) => {
 
   await page.goto('http://localhost:5173/');
   await expect(page.getByRole('heading', { name: 'Waterfall Plot' })).toBeVisible();
@@ -8,7 +8,6 @@ test('test things to be visible', async ({ page }) => {
   await expect(page.getByRole('img', { name: 'Пример графика' })).toBeVisible();
   await expect(page.getByText('Для работы с данной программой нужно')).toBeVisible();
   await page.getByText('Нажмите в любом месте или перетащите Excel файл Поддерживаются файлы .xlsx, .xls').click();
-
   const fileInput = page.locator('input[type="file"]');
   await fileInput.setInputFiles('dist/waterfall.xlsx');
   await expect(page.getByRole('heading', { name: 'Waterfall Plot' })).toBeVisible();

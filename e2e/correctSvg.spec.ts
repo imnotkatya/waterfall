@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('test', async ({ page }) => {
+test('Waterfall plot displays correct bars count, legend, colors and labels', async ({ page }) => {
   await page.goto('http://localhost:5173/');
   await page.getByText('Нажмите в любом месте или перетащите Excel файл').click();
   const fileInput = page.locator('input[type="file"]');
@@ -37,8 +37,6 @@ for (let i = 0; i < count; i++) {
   if (color) colors.add(color);
 }
 expect(colors.size).toBe(4);
-
-
 
 const allBars= await barsAmount.count();
 
