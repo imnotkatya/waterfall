@@ -1,51 +1,5 @@
 import * as d3 from "d3";
 import * as aq from "arquero";
-import * as XLSX from "xlsx";
-function handleJsonUpload(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onload = (e) => {
-      const jsonData = JSON.parse(e.target.result);
-      let stylesData, settingsData, chartData;
-      if (jsonData.styles && jsonData.settings && jsonData.data) {
-        stylesData = jsonData.styles;
-        settingsData = jsonData.settings;
-        chartData = jsonData.data;
-      }
-
-      resolve({
-        stylesTable: aq.from(stylesData),
-        settingsTable: aq.from(settingsData),
-        chartData: aq.from(chartData),
-      });
-    };
-    reader.onerror = () => reject(new Error("Ошибка чтения файла"));
-    reader.readAsText(file);
-  });
-}
-function handleExcelUpload(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onload = (e) => {
-      const workbook = XLSX.read(e.target.result, { type: "array" });
-      const toTable = (sheet) =>
-        aq.from(
-          XLSX.utils.sheet_to_json(workbook.Sheets[sheet], { defval: "" })
-        );
-
-      resolve({
-        stylesTable: toTable("styles"),
-        settingsTable: toTable("settings"),
-        chartData: toTable("data"),
-      });
-    };
-
-    reader.onerror = () => reject(new Error("Ошибка чтения файла"));
-    reader.readAsArrayBuffer(file);
-  });
-}
 
 function calculateLegendWidth(uniqueCategories) {
   return (
@@ -270,24 +224,6 @@ function drawLegend(svg, scales, settingsContext, uniqueCategories) {
     .style("fill", "#333")
     .style("font-weight", "normal")
     .text((d) => d.category);
-}
-export async function processFile(file) {
-  const fileName = file.name.toLowerCase();
-  let excelData;
-
-  if (fileName.endsWith(".json")) {
-    excelData = await handleJsonUpload(file);
-  } else if (fileName.endsWith(".xlsx") || fileName.endsWith(".xls")) {
-    excelData = await handleExcelUpload(file);
-  } else {
-    throw new Error(`Неподдерживаемый формат файла`);
-  }
-
-  return {
-    chartData: excelData.chartData,
-    settingsData: excelData.settingsTable.objects(),
-    stylesData: excelData.stylesTable,
-  };
 }
 
 export async function drawPlot(processedData, chartContainer) {
