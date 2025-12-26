@@ -61,16 +61,6 @@ const defaultHandle = (file) => {
   }
 };
 
-export async function processFile(file, handler = defaultHandle) {
-  const excelData = await handler(file);
-
-  return {
-    chartData: excelData.chartData,
-    settingsData: excelData.settingsData,
-    stylesData: excelData.stylesData,
-  };
-}
-
 const STYLES = `
   @font-face {
     font-family: 'SymbolsNerdFontMono-Regular';
@@ -208,7 +198,7 @@ export function main(container) {
 
   setupFileUpload(chartContainer, async (file) => {
     await drawPlot(
-      processData(await processFile(file)),
+      processData(await defaultHandle(file)),
       chartContainer.querySelector("#chartContent")
     );
   });
