@@ -41,5 +41,20 @@ it("renders ", () => {
   expect(chartContainer.innerHTML).toContain("svg");
 
   expect(chartContainer.innerHTML).toContain("rect");
-  expect(chartContainer.innerHTML).toContain("text");
+  expect(chartContainer.innerHTML).toContain("bars");
+
+  const svg = chartContainer.querySelector("svg");
+
+  const bars = svg.querySelectorAll(".bars");
+  expect(bars.length).toBe(3);
+
+  const actualColors = [];
+  for (let i = 0; i < bars.length; i++) {
+    const color = bars[i].getAttribute("fill");
+    actualColors.push(color);
+  }
+
+  const actualColorSet = new Set(actualColors);
+  const expectedColorSet = new Set(["red", "green"]);
+  expect(actualColorSet).toEqual(expectedColorSet);
 });
