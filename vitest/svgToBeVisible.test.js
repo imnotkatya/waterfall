@@ -1,8 +1,8 @@
 import { it, expect } from "vitest";
 import * as aq from "arquero";
-import { drawPlot, processData } from "../chart";
+import { drawPlot, processData } from "../src/chart";
 
-it("renders ", () => {
+it("svg visible with all the elements ", () => {
   const rawData = {
     chartData: aq.from([
       { name: "P1", percent: 10, category: "Cat1" },
