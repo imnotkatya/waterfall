@@ -1,5 +1,65 @@
-import { drawPlot, processFile, processData } from "./chart.js";
+import { drawPlot, processData } from "./chart.js";
 import { setupFileUpload } from "./upload";
+
+import * as aq from "arquero";
+import * as XLSX from "xlsx";
+
+function handleJsonUpload(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      const jsonData = JSON.parse(e.target.result);
+      let stylesData, settingsData, chartData;
+      if (jsonData.styles && jsonData.settings && jsonData.data) {
+        stylesData = jsonData.styles;
+        settingsData = jsonData.settings;
+        chartData = jsonData.data;
+      }
+
+      resolve({
+        stylesData: aq.from(stylesData),
+        settingsData: aq.from(settingsData),
+        chartData: aq.from(chartData),
+      });
+    };
+    reader.onerror = () => reject(new Error("Ошибка чтения файла"));
+    reader.readAsText(file);
+  });
+}
+function handleExcelUpload(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      const workbook = XLSX.read(e.target.result, { type: "array" });
+      const toTable = (sheet) =>
+        aq.from(
+          XLSX.utils.sheet_to_json(workbook.Sheets[sheet], { defval: "" })
+        );
+
+      resolve({
+        stylesData: toTable("styles"),
+        settingsData: toTable("settings"),
+        chartData: toTable("data"),
+      });
+    };
+
+    reader.onerror = () => reject(new Error("Ошибка чтения файла"));
+    reader.readAsArrayBuffer(file);
+  });
+}
+const defaultHandle = (file) => {
+  const fileName = file.name.toLowerCase();
+
+  if (fileName.endsWith(".json")) {
+    return handleJsonUpload(file);
+  } else if (fileName.endsWith(".xlsx") || fileName.endsWith(".xls")) {
+    return handleExcelUpload(file);
+  } else {
+    throw new Error(`error`);
+  }
+};
 
 const STYLES = `
   @font-face {
@@ -138,7 +198,7 @@ export function main(container) {
 
   setupFileUpload(chartContainer, async (file) => {
     await drawPlot(
-      processData(await processFile(file)),
+      processData(await defaultHandle(file)),
       chartContainer.querySelector("#chartContent")
     );
   });
@@ -146,3 +206,4 @@ export function main(container) {
 
 const container = document.querySelector("#app");
 main(container);
+//
