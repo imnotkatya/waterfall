@@ -21,7 +21,7 @@ function createScale(colors, property) {
 export function processData(raw) {
   const { stylesData, chartData, settingsData } = raw;
 
-  const settings = settingsData.reduce((acc, d) => {
+  const settings = settingsData.objects().reduce((acc, d) => {
     acc[d.measure] = d.value;
     return acc;
   }, {});
@@ -71,9 +71,7 @@ function drawChart(processedData, container) {
   const marginBottom = 100;
   const marginTop = 50;
   const marginRight = calculateLegendWidth(uniqueCategories);
-  console.log(uniqueCategories);
-  console.log(calculateLegendWidth(uniqueCategories));
-  console.log(marginRight);
+
   const settingsContext = {
     width,
     height,

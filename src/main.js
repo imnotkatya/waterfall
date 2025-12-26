@@ -66,7 +66,7 @@ export async function processFile(file, handler = defaultHandle) {
 
   return {
     chartData: excelData.chartData,
-    settingsData: excelData.settingsData?.objects?.(),
+    settingsData: excelData.settingsData,
     stylesData: excelData.stylesData,
   };
 }
@@ -216,3 +216,4 @@ export function main(container) {
 
 const container = document.querySelector("#app");
 main(container);
+//
